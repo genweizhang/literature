@@ -1,0 +1,75 @@
+
+\documentclass[aip,jcp,preprint,superscriptaddress,amsmath,amssymb]{revtex4-1}
+
+
+\usepackage{graphicx}% Include figure files
+\usepackage{mathrsfs}
+\usepackage{dcolumn}% Align table columns on decimal point
+\usepackage{bm}% bold math
+\usepackage{rotating}
+\usepackage{textcomp}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{color}
+\usepackage{gensymb}
+\usepackage{xspace} % fcp: useful for text macros
+\usepackage[normalem]{ulem} % fcp: strike-out text for fcprev
+
+\newcommand{\yerev}[1]{\textcolor{red}{#1}}
+\newcommand{\fcprev}[1]{\textcolor{red}{#1}}
+\newcommand{\ie}[0]{\textit{i.e.},\xspace} 
+\newcommand{\etal}[0]{\textit{et al.}\xspace} 
+
+\begin{document}
+
+\begin{center}
+\textbf{Random Thoughts on Atomic-Site Electronegativity}  \\
+(\today)
+\end{center}
+Given a molecular system with an external potential $v(\vec{r})$, 
+Kohn-Sham density functional theory leads to a converged electron density, $\rho(\vec{r})$,
+and the corresponding energy, $E[\rho(\vec{r})]$. 
+
+Let us apply a small perturbation to the external potential,
+\begin{equation}
+v(\vec{r}) ~~~ \longrightarrow ~~~ v(\vec{r})  + \varepsilon ~\delta v(\vec{r}) 
+\end{equation}
+where $\varepsilon$ is a parameter that we can use to tune the strength of the perturbation.  
+This perturbation will cause a change in the electron density
+\begin{equation}
+\rho(\vec{r}) ~~~ \longrightarrow ~~~ \rho(\vec{r})  + \varepsilon ~\delta \rho(\vec{r}) 
+\end{equation}
+and in the atomic populations 
+\begin{equation}
+N_A~~~ \longrightarrow ~~~ N_A + \varepsilon ~\delta N_A 
+\end{equation}
+
+Due to the conservation of the number of electrons, we have
+\begin{equation}
+\sum_A \delta N_A = 0 
+\end{equation}
+We can also  compute the energy derivative with respect to $\varepsilon$,
+\begin{equation}
+\frac { \partial E} { \partial \varepsilon}  = \sum_A  \left( \frac{\partial E} { \partial N_A } \right) ~ \delta N_A   \label{eq:dEdeps} 
+\end{equation}
+
+\textcolor{red}{If we make the assumption that the atomic-site electronegativity value is the same for all atoms (A, B, C, $\cdots$),} 
+\begin{equation}
+\left( \frac{\partial E} { \partial N_A } \right)  =  \left( \frac{\partial E} { \partial N_B } \right)   = \left( \frac{\partial E} { \partial N_C } \right) = \cdots = \mu 
+\end{equation} 
+ the energy derivative in Eq.~\ref{eq:dEdeps} becomes,
+\begin{equation}
+\frac { \partial E} { \partial \varepsilon}  = \sum_A  \left( \frac{\partial E} { \partial N_A } \right)  ~ \delta N_A = \mu  \left[ \sum_A   \delta N_A \right] = 0
+\end{equation}
+which might correspond to Eq. 1.9 in Paul's note. 
+
+\textcolor{red}{This is perplexing because this energy derivative seems to be non-vanishing in some cases.}    
+For example, when the external potential is changed by applying an electric field in the x-direction, 
+the total energy might be linearly dependent on the value of $\varepsilon$ with a slope proportional to the relaxed dipole moment of the molecule in the x-direction. 
+
+%\bibliographystyle{acs}
+
+
+
+
+\end{document}

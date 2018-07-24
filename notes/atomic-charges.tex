@@ -1,0 +1,78 @@
+
+\documentclass[aip,jcp,preprint,superscriptaddress,amsmath,amssymb]{revtex4-1}
+
+
+\usepackage{graphicx}% Include figure files
+\usepackage{mathrsfs}
+\usepackage{dcolumn}% Align table columns on decimal point
+\usepackage{bm}% bold math
+\usepackage{rotating}
+\usepackage{textcomp}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{color}
+\usepackage{gensymb}
+\usepackage{xspace} % fcp: useful for text macros
+\usepackage[normalem]{ulem} % fcp: strike-out text for fcprev
+
+\newcommand{\yerev}[1]{\textcolor{red}{#1}}
+\newcommand{\fcprev}[1]{\textcolor{red}{#1}}
+\newcommand{\ie}[0]{\textit{i.e.},\xspace} 
+\newcommand{\etal}[0]{\textit{et al.}\xspace} 
+
+\begin{document}
+
+\section{Mulliken Charges} 
+
+The Mulliken charges are defined as 
+\begin{equation}
+Q_A = \sum_{\mu \in A} \sum_{\nu}   P^{\mu \nu} S_{\mu \nu} 
+\end{equation}
+Their full derivatives with respect to nuclear displacements are
+\begin{equation}
+Q_A ^{(x)} = \sum_{\mu \in A} \sum_{\nu}   P^{\mu \nu,(x)}  S_{\mu \nu}  + \sum_{\mu \in A} \sum_{\nu}   P^{\mu \nu} S_{\mu \nu}^{(x)} 
+\end{equation}
+where the second term is called the M-derivative.     
+The first term depends on the density response, 
+\begin{equation}
+P^{(x)} =  - \frac{1}{2} CC^{\dagger} S^{(x)} P + C_v \Theta^{(x)} C_o^{\dagger} 
+\end{equation}
+which include an overlap derivative component and an orbital relaxation component.    So the nuclear gradient of Mulliken charges are:
+\begin{eqnarray}
+Q_A ^{(x)} & = & Q_{A,PS} ^{(x)} + Q_{A,PO} ^{(x)} + Q_{A,M} ^{(x)}         \\
+Q_{A,PS}^{(x)} & = & - \frac{1}{2}  \sum_{\mu \in A} \sum_{\nu}  \left[  CC^{\dagger} S^{(x)} P  \right] ^{\mu \nu}  S_{\mu \nu}  \\
+Q_{A,OR} ^{(x)} & = & \sum_{\mu \in A} \sum_{\nu}  \left[   C_v \Theta^{(x)} C_o^{\dagger}  \right] ^{\mu \nu}  S_{\mu \nu}  \\
+Q_{A,M} ^{(x)}   & = & \sum_{\mu \in A} \sum_{\nu}   P^{\mu \nu} S_{\mu \nu}^{(x)} 
+\end{eqnarray}
+
+When Mulliken charges are employed in an implicit solvent model (I am not aware of any) or QM/MM model, 
+the orbital relaxation component ($Q_{A,OR} ^{(x)}$) can be ignored in an energy gradient calculation, 
+while the overlap derivative component ($Q_{A,PS}^{(x)}$) is automatically folded into the Pulay term 
+through the energy weighted density matrix.   Only the M-derivatives ($Q_{A,M} ^{(x)}$) need to be added explicitly.  
+
+If, for any reason, full gradient is needed, we can solve CPSCF equation for the 3*NAtoms orbital responses (3 for each atom).   
+But we might be able to save a little bit time by solving for only ONE response for each atom.   
+This can be done by rewritten as the orbital relaxation component of the gradient as
+\begin{eqnarray}
+Q_{A,PO} ^{(x)}  &  = &  \sum_{\mu \in A} \sum_{\nu} \sum_{ai} C_{\mu a}  \Theta^{(x)}_{ai} C_{\nu i}  S_{\mu \nu}  \nonumber \\  
+& = &   \sum_{\mu \in A} \sum_{\nu} \sum_{ai} C_{\mu a}  \sum_{bj} \left[ \left( E^{\Theta \Theta}  \right)^{-1} \right]_{ai, bj} h^{(x)}_{bj}  C_{\nu i}  S_{\mu \nu}  \nonumber \\
+& = &  \sum_{bj} h^{(x)}_{bj}  \sum_{ai} \left[ \left( E^{\Theta \Theta}  \right)^{-1} \right]_{ai, bj} \left[  \sum_{\mu \in A} \sum_{\nu} C_{\mu a}  S_{\mu \nu}   C_{\nu i} \right]  \nonumber \\
+& = &  \sum_{bj}  h^{(x)}_{bj}  \sum_{ai} \left[ \left( E^{\Theta \Theta}  \right)^{-1} \right]_{ai, bj}  S_{A, ai}  \nonumber  \\
+& = & \sum_{bj}  h^{(x)}_{bj} Z_{A, bj} 
+\end{eqnarray}
+where 
+\begin{equation}
+S_{A, ai}  = \sum_{\mu \in A} \sum_{\nu} C_{\mu a}  S_{\mu \nu}   C_{\nu i}
+\end{equation}
+is the overlap between a normal occupied orbital (i) and a truncated virtual orbital (a),  which has only contributions from basis functions on atom A.  
+$Z_{A, bj}$ is the corresponding z vector, 
+\begin{equation}
+Z_{A, bj}  = \sum_{ai} \left[ \left( E^{\Theta \Theta}  \right)^{-1} \right]_{ai, bj}  S_{A, ai} 
+\end{equation}
+
+%\bibliographystyle{acs}
+
+
+
+
+\end{document}

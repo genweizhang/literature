@@ -1,0 +1,192 @@
+
+\documentclass[aip,jcp,preprint,superscriptaddress,amsmath,amssymb]{revtex4-1}
+%\documentclass[journal=jpcafh,manuscript=article,layout=twocolumn]{achemso}
+
+\usepackage{fullpage}
+\usepackage{graphicx}% Include figure files
+\usepackage{mathrsfs}
+\usepackage{dcolumn}% Align table columns on decimal point
+\usepackage{bm}% bold math
+\usepackage{rotating}
+\usepackage{textcomp}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{color}
+\usepackage{gensymb}
+\usepackage{xspace} % fcp: useful for text macros
+\usepackage[normalem]{ulem} % fcp: strike-out text for fcprev
+
+\newcommand{\yerev}[1]{\textcolor{red}{#1}}
+\newcommand{\fcprev}[1]{\textcolor{red}{#1}}
+\newcommand{\ie}[0]{\textit{i.e.},\xspace} 
+\newcommand{\etal}[0]{\textit{et al.}\xspace} 
+
+\begin{document}
+\title{Implementation of Periodic Boundary Condition Quantum Mechanical 
+Molecular Mechanical Calculations Using the Q-Chem and NAMD Software Packages}
+\author{Xiaoliang Pan and Yihan}
+\maketitle
+%title{Whatever} 
+
+The total QM/MM interaction for a periodic system is
+\begin{eqnarray}
+E & = &  \frac{1}{2} \left< \rho_{QM}  + q_{MM} \middle| \hat{j}_ {\mathbf{n}} \middle| \rho_{QM}  + q_{MM} \right>  \nonumber \\
+& = &  E_{QM,QM} + E_{QM,MM} + E_{MM.MM} 
+\end{eqnarray} 
+It three components are
+\begin{eqnarray}
+E_{QM,QM} & = & \frac{1}{2} \left< \rho_{QM}  \middle| \hat{j}_ {\mathbf{n}} \middle| \rho_{QM}  \right> = \frac{1}{2}   \left< \rho_{QM}  | \phi_{QM, \mathbf{n}} \right> \\
+E_{QM,MM} & = & \left< \rho_{QM}  \middle| \hat{j}_ {\mathbf{n}} \middle| q_{MM}  \right> =  \left< \rho_{QM}  \middle|   \phi_{MM, \mathbf{n}} \right>  \\
+E_{MM,MM} & = & \frac{1}{2} \left< q_{MM}  \middle| \hat{j}_ {\mathbf{n}} \middle| q_{MM}  \right>
+\end{eqnarray}
+where the electrostatic potential of the QM (or MM) subsystem and its images are denoted by $ \phi_{QM, \mathbf{n}}$  (or $\phi_{MM, \mathbf{n}} $). 
+
+Following the notation from Giese and York, let us split the Coulomb operator $\hat{j}_ {\mathbf{n}}$ into central-cell and extra contributions: 
+\begin{equation}
+\hat{j}_ {\mathbf{n}} = \hat{j} + \hat{j}_ {\Delta}
+\end{equation}
+There are several approximations one can make to the QM-QM interaction energy: 
+\begin{itemize}
+\item Ewald methods (``QM/MM-Ewald") from Nam, Gao and York, and from Holden, Richard and Herbert.  
+\begin{eqnarray}
+E_{QM,QM}^{Ewald} & =  &  \frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right>  +  \frac{1}{2}  \left< Q_{QM}  \middle| \hat{j}_ {\Delta} \middle| Q_{QM}   \right>   \nonumber \\
+ & = & \frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right>  -   \frac{1}{2} \left< Q_{QM}  \middle| \hat{j} \middle| Q_{QM}  \right>  
+ +  \frac{1}{2}  \left< Q_{QM}  \middle| \hat{j}_ {\mathbf{n}} \middle| Q_{QM}   \right> \label{eq:Ewq}  
+\end{eqnarray} 
+which performs an Ewald sum over Mulliken or  ChElPG charges, and then corrects the QM-QM interactions within the central unit cell.   
+This leads to $E_{QM,QM}^{Ewq-Mulliken}$ and $E_{QM,QM}^{Ewq-ChElPG}$ models. 
+
+\item Particle Mesh Ewald methods (``QM/MM-PME-C"), which employs atomic charges to represent QM images,  
+\begin{eqnarray}
+E_{QM,QM}^{PME-Q} & =  &  \frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right>  + \alpha \left< \rho_{QM}  \middle| \hat{j}_ {\Delta} \middle| Q_{QM}  \right>
++ ( \frac{1}{2} -  \alpha)   \left< Q_{QM}  \middle| \hat{j}_ {\Delta} \middle| Q_{QM}  \right> \label{eq:PMEwq}  
+\end{eqnarray} 
+Here the second term in Eq.~\ref{eq:PMEwq} can be broken into real-space and reciprocal-space components: 
+\begin{eqnarray}
+\left< \rho_{QM}  \middle| \hat{j}_ {\Delta} \middle| Q_{QM}  \right>  & =  & \left< \rho_{QM}  \middle| \phi_ {\Delta} (Q_{QM})  \right>  \nonumber   \\
+& =  & \left< \rho_{QM}  \middle| \phi_ {\mathbf{n}} (Q_{QM})  - \phi (Q_{QM}) \right>   \nonumber \\
+& = & \left< \rho_{QM}  \middle|  \phi_ {\mathbf{n}, real} (Q_{QM}) + \phi_ {\mathbf{n}, recip} (Q_{QM})  - \phi (Q_{QM}) \right>   \nonumber  \\
+& = & \left< \rho_{QM}  \middle|  \phi_ {\mathbf{n}, real} (Q_{QM})  - \phi (Q_{QM}) \right>  +  \left< \rho_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (Q_{QM})  \right>  \nonumber \\
+& = & - \left< \rho_{QM}  \middle|  \hat{j}_{erf}  \middle| Q_{QM} \right> + \left< \rho_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (Q_{QM}) \right>     \label{eq:density-qm-charge} 
+\end{eqnarray}
+while the third term, $ \left< Q_{QM}  \middle| \hat{j}_ {\Delta} \middle| Q_{QM}  \right>$, in Eq.~\ref{eq:PMEwq} can be treated the same way as in QM/MM-Ewald. 
+Note that, as a PME method, the reciprocal component in Eq.~\ref{eq:density-qm-charge} requires us to spread the reciprocal potential from QM atomic charges onto an atom-centered grid
+before it can be integrated together with the electron density.   
+This reciprocal component contributes to the Fock matrix not only through the electron density (on the bra side) but also the QM atomic charges (on the ket side), 
+and it is unclear how to the latter can be computed efficiently within the reciprocal space.  
+One way to completely avoid the ket-side contribution is to fix the QM atomic charges to reference values (i.e. kept constant throughout the simulation),
+\begin{eqnarray}
+E_{QM,QM}^{QM/MM-FC} & =  &  \frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right>  + \alpha \left< \rho_{QM}  \middle| \hat{j}_ {\Delta} \middle| Q_{QM}^{ref} \right>
++ ( \frac{1}{2} -  \alpha)   \left< Q_{QM}^{ref} \middle| \hat{j}_ {\Delta} \middle| Q_{QM}^{ref} \right>  \nonumber \\
+ \label{eq:PMEwq}  
+\end{eqnarray} 
+where the second term becomes
+\begin{eqnarray}
+\left< \rho_{QM}  \middle| \hat{j}_ {\Delta} \middle| Q_{QM}^{ref}  \right>  =  - \left< \rho_{QM}  \middle|  \hat{j}_{erf}  \middle| Q_{QM}^{ref} \right> + \left< \rho_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (Q_{QM}^{ref} ) \right>
+\end{eqnarray}
+When the $\alpha$ coefficient is set to 1, this leads to the ambient-potential QM/MM method (``cEw")  of Giese and York.  
+\item PME method using electron density for QM images (``QM/MM-PME-D"), and the energy will be 
+\begin{equation}
+E_{QM,QM}^{PME-D} = \frac{1}{2} \left< \rho_{QM}  \middle|  \hat{j}_{erfc}  \middle| \rho_{QM} \right> + \frac{1}{2}  \left< \rho_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (\rho_{QM}) \right>   
+\end{equation} 
+It requires the use of $erfc(\xi r ) / r$ operator instead of $1/r$ in the real-space evaluation of Coulomb integrals, 
+as well as a representation for the QM density/potential on both cubic grids (for reciprocal-space calculation) and atomc-centered grids (for integration).  
+While all necessary code components can be readily found from QM software packages, such as Q-Chem and QPS, 
+and from common MM software packages, they have yet to be assembled together.  
+\end{itemize}
+
+
+\begin{table}[htp]
+\setlength{\tabcolsep}{3pt}
+\caption{Different options for handling QM-QM interactions in a QM/MM calculation.}
+\begin{tabular}{llll}
+\hline \hline 
+Method & Energy & Expression & Comments \\
+\hline 
+Non-PBC & Total & $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right> $ \\
+ & Real Space & $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right> $ \\
+ & Reciprocal Space & None \\
+ Ewald & Total &  $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right>  
+ + \frac{1}{2} \left[  \left< Q_{QM}  \middle| \hat{j}_ {\mathbf{n}} \middle| Q_{QM} \right>  
+ -  \left< Q_{QM}  \middle| \hat{j} \middle| Q_{QM} \right> \right] $ & ``Ewq" \\
+ & Real Space & $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right>  -  \frac{1}{2}  \left< Q_{QM}  \middle| \hat{j}_ {erf} \middle| Q_{QM}   \right> $  \\
+ & Reciprocal Space & $\frac{1}{2} \left< Q_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (Q_{QM}) \right>$    \\
+ PME-Q & Total & $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right>   
+  + \alpha \left[ \left< \rho_{QM}  \middle| \hat{j}_ {\mathbf{n}} \middle| Q_{QM} \right>  
+ -   \left< \rho_{QM}  \middle| \hat{j} \middle| Q_{QM} \right> \right] $ & \\
+ & & $ + \left( \frac{1}{2} - \alpha  \right) \left[  \left< Q_{QM}  \middle| \hat{j}_ {\mathbf{n}} \middle| Q_{QM} \right>  
+ -   \left< Q_{QM}  \middle| \hat{j} \middle| Q_{QM} \right> \right]$ \\
+ & RealSpace & $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right>   - \alpha \left< \rho_{QM}  \middle|  \hat{j}_{erf}  \middle| Q_{QM} \right>
+ -\left( \frac{1}{2} - \alpha \right)  \left< Q_{QM}  \middle| \hat{j}_ {erf} \middle| Q_{QM}   \right> $  \\
+ & Reciprocal Space & $\alpha \left< \rho_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (Q_{QM}) \right>  +  \left( \frac{1}{2} - \alpha \right) \left< Q_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (Q_{QM}) \right> $  \\
+ PME-FQ & Total & $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right>   
+  + \alpha \left[ \left< \rho_{QM}  \middle| \hat{j}_ {\mathbf{n}} \middle| Q_{QM}^{ref} \right>  
+ -   \left< \rho_{QM}  \middle| \hat{j} \middle| Q_{QM}^{ref} \right> \right] $ & ``CEw" \\
+ & & $ + \left( \frac{1}{2} - \alpha  \right) \left[  \left< Q_{QM}^{ref} \middle| \hat{j}_ {\mathbf{n}} \middle| Q_{QM}^{ref} \right>  
+ -   \left< Q_{QM}^{ref}  \middle| \hat{j} \middle| Q_{QM}^{ref} \right> \right]$ \\
+ & RealSpace & $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right>   - \alpha \left< \rho_{QM}  \middle|  \hat{j}_{erf}  \middle| Q_{QM}^{ref} \right>
+ -\left( \frac{1}{2} - \alpha \right)  \left< Q_{QM}^{ref}  \middle| \hat{j}_ {erf} \middle| Q_{QM}^{ref}   \right> $  \\
+ & Reciprocal Space & $\alpha \left< \rho_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (Q_{QM}^{ref}) \right>  +  \left( \frac{1}{2} - \alpha \right) \left< Q_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (Q_{QM}^{ref}) \right> $  \\
+ PME-D & Total & $ \frac{1}{2} \left< \rho_{QM}  \middle|  \hat{j}_{\mathbf{n}}  \middle| \rho_{QM} \right> $  \\
+ & Real Space & $ \frac{1}{2} \left< \rho_{QM}  \middle|  \hat{j}_{erfc}  \middle| \rho_{QM} \right> $ \\
+ & Reciprocal Space &  $\frac{1}{2}  \left< \rho_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (\rho_{QM}) \right>$ \\
+ \hline 
+ \end{tabular}
+ \end{table} 
+
+
+
+
+\begin{sidewaystable}[htp]
+\setlength{\tabcolsep}{6pt}
+\caption{Different options for handling QM-QM interactions in a QM/MM calculation.}
+\begin{tabular}{lcccc}
+\hline \hline 
+Method & Total & Real Space & Reciprocal Space & Comments \\
+\hline 
+Non-PBC & $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right> $ & $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right> $  & None \\
+Ewald & $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right>  + \frac{1}{2}  \left< Q_{QM}  \middle| \hat{j}_ {\mathbf{n}} \middle| Q_{QM} \right> $ 
+&  $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right>  -  \frac{1}{2}  \left< Q_{QM}  \middle| \hat{j}_ {erf} \middle| Q_{QM}   \right> $ & 
+$\frac{1}{2} \left< Q_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (Q_{QM}) \right>$   & ``Ewq" \\
+& $- \frac{1}{2}  \left< Q_{QM}  \middle| \hat{j} \middle| Q_{QM} \right>$ \\
+PME-Q & $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM}  \right>   - \alpha \left< \rho_{QM}  \middle|  \hat{j}_{erf}  \middle| Q_{QM} \right>$ &   
+$\alpha \left< \rho_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (Q_{QM}) \right> $ &  \\
+&  $-\left( \frac{1}{2} - \alpha \right)  \left< Q_{QM}  \middle| \hat{j}_ {erf} \middle| Q_{QM}   \right>$  & 
+$+  \left( \frac{1}{2} - \alpha \right) \left< Q_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (Q_{QM}) \right>$ \\
+PME-FQ & $\frac{1}{2} \left< \rho_{QM}  \middle| \hat{j} \middle| \rho_{QM} \right>   - \alpha \left< \rho_{QM}  \middle|  \hat{j}_{erf}  \middle| Q_{QM}^{ref} \right>$ &   
+$\alpha \left< \rho_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (Q_{QM}^{ref} ) \right> $ &  ``CEw"\\
+&  $-\left( \frac{1}{2} - \alpha \right)  \left< Q_{QM}^{ref}   \middle| \hat{j}_ {erf} \middle| Q_{QM}^{ref}    \right>$  & 
+$+  \left( \frac{1}{2} - \alpha \right) \left< Q_{QM}^{ref}   \middle|  \phi_ {\mathbf{n}, recip} (Q_{QM}^{ref} ) \right>$ \\
+PME-D & $ \frac{1}{2} \left< \rho_{QM}  \middle|  \hat{j}_{erfc}  \middle| \rho_{QM} \right> $ & 
+$ \frac{1}{2}  \left< \rho_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (\rho_{QM}) \right>$ \\
+\hline \hline 
+\end{tabular}
+\end{sidewaystable}
+
+\begin{table}[htp]
+\setlength{\tabcolsep}{6pt}
+\caption{Different options for handling QM-MM interactions in a QM/MM calculation.}
+\begin{tabular}{lccc}
+\hline \hline 
+Method & Real Space & Reciprocal Space & Comments \\
+\hline 
+Cutoff-h &  $\left< \rho_{QM}  \middle| \hat{j} \left[ 1- h (r - r_C) \right]  \middle| q_{MM}  \right> $  & None  \\
+Cutoff-s &  $\left< \rho_{QM}  \middle| \hat{j} s (r - r_C)   \middle| q_{MM}  \right> $  & None  \\
+Ewald-1 &  $ \left< \rho_{QM}  \middle| \hat{j}_{erfc} \middle| q_{MM}  \right> $   & 
+ $ \left< Q_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (q_{MM}) \right>$    &   \\
+ Ewald-2 &  $ \left< \rho_{QM}  \middle| \hat{j} \middle| q_{MM}  \right> $ -  $ \left< Q_{QM}  \middle| \hat{j}_{erf} \middle| q_{MM}  \right> $ & 
+ $ \left< Q_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (q_{MM}) \right>$    &  ``Ewq" \\
+PME-D & $ \left< \rho_{QM}  \middle| \hat{j}_{erfc} \middle| q_{MM}  \right> $ & 
+ $ \left< \rho_{QM}  \middle|  \phi_ {\mathbf{n}, recip} (q_{MM}) \right>$    &  ``CEw" \\
+\hline 
+\end{tabular}
+\end{table}
+For the PME-D for QM/MM interactions, refer to Eq. 74 in the Giese-York paper.  
+
+
+%\bibliographystyle{acs}
+
+
+
+
+\end{document}

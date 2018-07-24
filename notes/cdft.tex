@@ -1,0 +1,74 @@
+
+\documentclass[aip,jcp,preprint,superscriptaddress,amsmath,amssymb]{revtex4-1}
+
+
+\usepackage{graphicx}% Include figure files
+\usepackage{mathrsfs}
+\usepackage{dcolumn}% Align table columns on decimal point
+\usepackage{bm}% bold math
+\usepackage{rotating}
+\usepackage{textcomp}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{color}
+\usepackage{gensymb}
+\usepackage{xspace} % fcp: useful for text macros
+\usepackage[normalem]{ulem} % fcp: strike-out text for fcprev
+
+\newcommand{\yerev}[1]{\textcolor{red}{#1}}
+\newcommand{\fcprev}[1]{\textcolor{red}{#1}}
+\newcommand{\ie}[0]{\textit{i.e.},\xspace} 
+\newcommand{\etal}[0]{\textit{et al.}\xspace} 
+\newcommand{\inlinemaketitle}{{\let\newpage\relax\maketitle}}
+
+\begin{document}
+
+\begin{center} 
+\textbf{Estimation of the Bias Potential and Charge Transfer Energy in Constrained Density Functional Theory Calculations}  \\
+Yuezhi Mao and Yihan Shao \\
+(\today)  \\
+\end{center} 
+
+
+
+Given a weight matrix, $W_{p}$, using a population scheme, 
+we can use its AO representation to obtain the unbiased population 
+from the unbiased density matrix ($P^{(0)}$) 
+\begin{equation}
+Q_p^{0} = W_{p,ao} \cdot P^{(0)} + \mathrm{(nuclear~contribution)} 
+\end{equation} 
+
+We can convert the weight matrix into the MO representation (V $\times$ O),    
+and compute its corresponding z vector, 
+\begin{equation}
+z_p = \left( E_{\Theta \Theta} \right)  ^{-1}  W_{p,mo} 
+\end{equation}
+From the z vector, we can compute the corresponding density matrix change (i.e. Fock build is incremented with one unit of the weight matrix)
+\begin{equation}
+\Delta P_p  = C_v z_p C_o^\dagger + C_o z_p^\dagger C_v^\dagger 
+\end{equation}
+and population change
+\begin{equation}
+\Delta Q_p = \Delta P_p \cdot W_{p,ao}  
+\end{equation} 
+
+From that, we can estimate the required bias potential for achieving a zero-charge fragment, 
+\begin{equation}
+\lambda_p = -  \frac{ Q_p^{0}  }  {\Delta Q_p  }
+\end{equation} 
+and the energy charge for this charge constraint is 
+\begin{equation}
+E ( \lambda_p ) = \frac{1}{2}~~ \lambda_p^2  ~~ (z_p \cdot W_{p,mo} ) 
+\end{equation} 
+
+
+
+
+
+\bibliography{tddft}
+\bibliographystyle{acs}
+
+
+
+
+\end{document}

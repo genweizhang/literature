@@ -1,0 +1,4 @@
+\Delta A = - \frac{1}{\beta} \mathrm{ln} \left< \mathrm{exp} (- \beta \Delta U) \right> 
+
+\Delta A_{0\rightarrow1} = \int_0^1 \left< \frac{\partial H(\lambda)}{\partial \lambda} \right>_{\lambda} ~d\lambda \\
+= \sum_i \left< \frac{\partial H(\lambda)}{\partial \lambda} \right>_{\lambda_i}  \Delta \lambda_i 

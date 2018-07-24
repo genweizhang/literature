@@ -1,0 +1,22 @@
+The top references are in literature/quantum_chemistry/stability_analysis/.
+
+The following focuses on RHF->UHF stability
+
+According to Pulay16, the RHF->UHF rotations are
+   i_alpha -> cos (theta_{ai} ) i_alpha + sin (theta_{ai} ) a_alpha
+   i_beta  -> cos (theta_{ai} ) i_beta  - sin (theta_{ai} ) a_beta
+The RHF->UHF Hessian elements are
+   0.25 * H_{ia, ia} = F_{aa} - F_{ii} - (ii | aa}  - (ai | ai) 
+   0.25 * H_{ia, jb} = - ( ij  | ab)  - (i b  | aj ) 
+
+In Q-Chem, this was determined as A-B.   
+(Note that A+B is the RHF->RHF internal stability Hessian).
+
+For the definition of A and B, we can go back to the TDDFT paper by Hirata and Head-Gordon,
+   A_{ai, bj} = (epsilon_a - epsilon_i) delta_ab delta_ij + ( i a| jb ) - ( ij | ab) 
+   B_{ai, bj) = ( ia| jb )  - (ib | ja) 
+
+
+
+
+

@@ -1,0 +1,484 @@
+% !TeX spellcheck = en_US
+% !TeX encoding = UTF-8
+% ****** Start of file apssamp.tex ******
+%
+%   This file is part of the APS files in the REVTeX 4 distribution.
+%   Version 4.0 of REVTeX, August 2001
+%
+%   Copyright (c) 2001 The American Physical Society.
+%
+%   See the REVTeX 4 README file for restrictions and more information.
+%
+% TeX'ing this file requires that you have AMS-LaTeX 2.0 installed
+% as well as the rest of the prerequisites for REVTeX 4.0
+%
+% See the REVTeX 4 README file
+% It also requires running BibTeX. The commands are as follows:
+%
+%  1)  latex apssamp.tex
+%  2)  bibtex apssamp
+%  3)  latex apssamp.tex
+%  4)  latex apssamp.tex
+%
+%\documentclass[twocolumn,preprintnumbers,amsmath,amssymb]{revtex4}
+%\documentclass[preprint,showpacs,preprintnumbers,amsmath,amssymb]{revtex4}
+\documentclass[aip,jcp,preprint,superscriptaddress,amsmath,amssymb]{revtex4-1}
+
+
+% Some other (several out of many) possibilities
+%\documentclass[preprint,aps]{revtex4}
+%\documentclass[preprint,aps,draft]{revtex4}
+%\documentclass[prb]{revtex4}% Physical Review B
+
+\usepackage{graphicx}% Include figure files
+\usepackage{mathrsfs}
+\usepackage{dcolumn}% Align table columns on decimal point
+\usepackage{bm}% bold math
+\usepackage{rotating}
+\usepackage{textcomp}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{color}
+\usepackage{gensymb}
+\usepackage{xspace} % fcp: useful for text macros
+\usepackage[normalem]{ulem} % fcp: strike-out text for fcprev
+
+
+
+%\usepackage{mhchem}
+%\usepackage{pstricks}
+%\nofiles
+%\usepackage{xr}
+%\externaldocument{SI}
+\newcommand{\yerev}[1]{\textcolor{red}{#1}}
+\newcommand{\fcprev}[1]{\textcolor{red}{#1}}
+\newcommand{\ie}[0]{\textit{i.e.},\xspace} % fcp: added this macro and replaced instances of i.e. in the text to unify and enforce proper style
+\newcommand{\etal}[0]{\textit{et al.}\xspace} % fcp: added this macro and replaced instances of et al. in the text to unify and enforce proper style
+
+%\newcommand{\executeiffilenewer}[3]{%
+%\ifnum\pdfstrcmp{\pdffilemoddate{#1}}%
+%{\pdffilemoddate{#2}}>0%
+%{\immediate\write18{#3}}\fi%
+%}
+%\newcommand{\includesvg}[1]{%
+%\executeiffilenewer{#1.svg}{#1.pdf}%
+%{inkscape -z -D --file=#1.svg %
+%--export-pdf=#1.pdf --export-latex}%
+%\input{#1.tex}%
+%}
+
+%\bibliographystyle{unsrt}
+
+\begin{document}
+
+\title{QM*/MM: Hybrid Quantum Mechanical Molecular Mechanical Calculations Using a Multipolar Representation for the Electron Density in the Quantum Mechanical Region for the Electrostatic Embedding}
+
+\author{Yuezhi Mao}
+\affiliation{Department of Chemistry, University of California, Berkeley, California 94720, United States}
+
+\author{Yihan Shao}
+\thanks{Author to whom correspondence should be addressed}
+\email{yihan.shao@ou.edu}
+\affiliation{Department of Chemistry and Biochemistry, University of Oklahoma, Norman, Oklahoma 73019, United States}
+
+\date{\today}
+
+\begin{abstract}
+\textbf{Abstract.}    
+In this note, we are going to explore local expansions for the electrostatic embedding potential 
+in hybrid quantum mechanical molecular mechanical calculations. 
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+Hybrid quantum mechanical molecular mechanical (QM/MM) modeling has become an important tool for molecular and biomolecular simulations, 
+where a core region of interest (called the \emph{system}), such as reaction sites, binding sites, chromophores, solutes and their immediate solvent shells, 
+requires an accurate quantum mechanical (QM) description.
+The rest of the system (called the \emph{environment}) provides an electrostatic embedding potential to the electron motion in the QM system, 
+and typically also interacts with the system through classical Lennard-Jones or similar terms to account for exchange repulsion and dispersion.  
+In cases where the system and environment are connected through covalent bonds, 
+several approaches using link-atoms, double link atoms, pseudobonds, generalized hybrid orbitals, 
+frozen bond orbitals, can be employed to approximatelyly describe the interface bonds. 
+
+In this work, we will focus mainly on the electrostatic embedding potential from the environment,
+which would necessarily perturb the electron structure of the QM region.    
+The treatment of such electrostatic embedding can be divided into two categories. 
+In the first category, which is the dominant choice today, 
+one represents the electrostatic embedding potential, $\phi(\vec{r})$, from the environment in the atomic orbital (AO) basis for the QM region, 
+\begin{equation}
+V_{\mu \nu} = \int \chi_{\mu} (\vec{r})  \phi(\vec{r}) \chi_{\nu} (\vec{r})  d \vec{r} 
+\label{eq:qmmm-v}
+\end{equation}
+which becomes part of the one-electron effective Hamiltonian (i.e., the Fock matrix).   
+The electron portion of the system-environment electrostatic energy is simply 
+\begin{equation}
+E_{V} = Tr( P V) 
+\label{eq:ev1}
+\end{equation}
+where $P$ is the one-particle density matrix in the AO basis.     
+In other words, the electron density interacts explicitly with the electrostatic embedding potential from the environment,
+\begin{equation}
+E_V = \int \rho(\vec{r})   \phi(\vec{r})  d \vec{r} 
+\label{eq:ev2}
+\end{equation}
+
+In the second category, the electron density adopts a multipolar representation, 
+via atomic charges, dipoles, and quadrupoles, etc (see, for example, Eqs.~\ref{eq:atomic-charges}, \ref{eq:atomic-dipoles}, \ref{eq:atomic-quadrupoles} below). 
+The system-environment electrostatic interaction energy in Eqs.~\ref{eq:ev1} or \ref{eq:ev2} 
+can then be approximated by interacting local atomic multipoles with the local electrostatic embedding potential, 
+its gradient (electrostatic field), and Hessian (quadrupolar field).   
+Such a multipolar representation of the QM electron density, called a QM* representation, 
+was reported in the recent implementation of the QM/AMOEBA calculations within the ONETEP software package, 
+where AMOEBA refers to an advanced induced-dipoles-type polarizable molecular mechanical force field. 
+In that implementation, the QM* representation was only adopted for the QM $\mapsto$ MM polarization, 
+namely for the computation of induced dipoles on polarizable atoms in the environment region due to the QM electron density.  
+The MM $\mapsto$ QM polarization was carried out in the conventional way by computing the electrostatic potential of
+permanent multipoles and induced dipoles in the environment region and using this potential to perturb the QM electron density 
+through Eqs. \ref{eq:qmmm-v} through \ref{eq:ev2}.
+
+In this work, we will explore the possibility of using the multipolar (QM*) representation 
+of the electron density in the MM $\mapsto$ QM polarization as well.  
+In order to avoid any potential difficulties with computing analytical energy gradients, 
+the simplest approach to obtain the local atomic charges, dipoles and quadrupoles 
+will be adopted, which is based on Mulliken-type decomposition of the electron density.   
+The QM*/MM calculations are attractive to us because of two factors: 
+a) a huge reduction in the cost of computing one-electron integrals in Eq.\ref{eq:qmmm-v} 
+and corresponding contributions to the analytical energy gradient; 
+and (b) a potential use to help formulate new polarizable force fields models
+that mix responses to changes in the local electrostatic potential, field and quadrupolar field.  
+
+In principle, it might be desirable to have a rigorous computation of one-electron integrals in Eq.\ref{eq:qmmm-v}.  
+But it is arguably 100\% necessary only when:
+ (a) one has an accurate representation for the electron density in the MM region that accounts for the delocalized nature of valence electrons; 
+ (b) one has a well-calibrated combination of QM method and basis set for the system-at-hand; and  
+ (c) one accounts for other system-environment nonbonded (exchange repulsion and dispersion) interactions in an accurate and not-so-arbitrary manner. 
+
+
+%\begin{itemize}
+%\item Choice of QM method.  Density functionals with larger ratios of Hartree-Fock exchange 
+%might noticeably enhance the QM/MM permanent electrostatics.  
+%\item Choice of atomic basis.   
+%While larger basis sets are desirable, one can only afford small to medium-size basis sets in many QM/MM studies.
+%\item Point-charge or point-multipolar representation of the MM environment.    
+%While the valence electrons in the MM environment (especially those near the QM region) should, in principle, 
+%have at least non-zero width, the quality of existing damping schemes is not fully analyzed.  
+%\item System-environment exchange repulsion interaction.    
+%Through the exchange repulsion interaction, the environment is expected to perturb the electron density in the QM region. 
+%However, with very few exceptions, it is usually combined with the dispersion interaction in a classical Lennard-Jones or similar formula, 
+%and therefore it has no effect on the electron structure in the QM region.   
+
+
+\section{Theory}
+
+\subsection{Local Taylor expansion of the MM electrostatic embedding potential}
+
+Suppose that there is an MM electrostatic embedding potential, $\phi(\vec{r})$, 
+which might come from MM point charges ($q_i$ at position $\vec{R}_i$) 
+\begin{equation}
+\phi(\vec{r}) = \sum_i  \frac{q_k} { | \vec{r} - \vec{R}_k | } 
+\end{equation}
+or MM multipoles and induced dipoles.   
+A local Taylor expansion can be performed around each nucleus ($A$), 
+\begin{equation}
+\phi(\vec{r}) = \phi(\vec{A}) + \vec{E} \cdot (\vec{r} - \vec{A} ) + \frac{1}{2} (\vec{r} - \vec{A} ) \cdot \vec{\vec{G}} \cdot (\vec{r} - \vec{A} ) + \cdots 
+\label{eq:taylor-phi}
+\end{equation}
+where $\vec{E}$ are the electrostatic field
+\begin{equation}
+\vec{E} = - \sum_k \frac{q_k (\vec{r} - \vec{R}_k ) } { | \vec{r} - \vec{R}_k |^3 }  
+\end{equation}
+computed at position $\vec{A}$, 
+whereas $\vec{\vec{G}}$ is the field gradient (also called quadrupolar field)
+\begin{equation}
+\vec{\vec{G}} =  \sum_k q_k \left[ \frac{ 3  (\vec{r} - \vec{R}_k )  \otimes (\vec{r} - \vec{R}_k ) } { | \vec{r} - \vec{R}_k |^5 }  -   \frac{ \vec{\vec{1}} } { | \vec{r} - \vec{R}_k |^3} \right]    
+\end{equation}
+
+\subsection{Local multipole matrices}
+
+The atomic-basis overlap matrix is 
+\begin{equation}
+S_{\mu \nu} = \int \chi_{\mu} (\vec{r} ) \chi_{\nu} (\vec{r}) d \vec{r} 
+\label{eq:mol-overlap}
+\end{equation}
+The dipole matrices are
+\begin{equation}
+D_{i, \mu \nu} = \int \chi_{\mu} (\vec{r} ) (\mathbf{1}_i ) \chi_{\nu} (\vec{r}) d \vec{r}, ~~~i=x, y, z
+\label{eq:mol-dipole}
+\end{equation}
+where $\mathbf{1}_i$ means $x$, or $y$, or $z$.   The quadrupolar matrices are
+\begin{equation}
+Q_{ij, \mu \nu} = \int \chi_{\mu} (\vec{r} ) (\mathbf{1}_i )(\mathbf{1}_j) \chi_{\nu} (\vec{r}) d \vec{r}, ~~~i=x, y, z    
+\label{eq:mol-quadrupole}
+\end{equation}
+It is important to note that the dipolar and quadrupolar matrices are dependent on the position of the origin ($\vec{O}$).  
+
+Local overlap matrices ($S_{AA}$ and $S_{AB}$) are defined as diagonal and off-diagonal blocks of the molecular overlap matrix
+\begin{eqnarray}
+S_{AA} = \{ S_{\mu \nu}, ~\mu \in A, ~\nu \in A \}   \\
+S_{AB} = \{ S_{\mu \nu}, ~\mu \in A, ~\nu \in B \}  
+\end{eqnarray}
+Local dipole matrices are defined as
+\begin{eqnarray}
+D_{i,AA}^{(A)} = \{ D_{i, \mu \nu } ( \vec{O'} = \vec{A}), ~\mu \in A, ~\nu \in A \}  \\
+D_{i, AB}^{(A)} = \{ D_{i, \mu \nu} ( \vec{O'} = \vec{A}), ~\mu \in A, ~\nu \in B \} 
+\end{eqnarray}
+where the dipole matrix elements on the right-hand-side correspond to integration values with $\vec{A}$ being the origin.  
+Similarly, one can define the local quadrupolar matrices: 
+\begin{eqnarray}
+Q_{ij,AA}^{(A)} = \{ Q_{ij, ~\mu\nu } ( \vec{O'} = \vec{A}), ~\mu \in A, ~\nu \in A \} \\
+Q_{ij, AB}^{(A)} = \{ Q_{ij, ~\mu\nu} ( \vec{O'} = \vec{A}), ~\mu \in A, ~\nu \in B \}   
+\end{eqnarray}
+Of course, given the molecular multipolar matrices in Eqs.~\ref{eq:mol-overlap}, \ref{eq:mol-dipole} and \ref{eq:mol-quadrupole}, 
+one can easily obtain the local dipolar and quadrupolar matrices:
+\begin{equation}
+ D_{i, ~\mu\nu} ( \vec{O'} = \vec{A})   
+ =   D_{i, ~\mu\nu} 
+ - (A_i - O_i  )  S_{\mu \nu}   
+ \end{equation}
+ \begin{equation}
+ Q_{ij, ~\mu\nu} ( \vec{O'} = \vec{A})   
+ =   Q_{ij, ~\mu\nu} 
+ - (A_i - O_i  ) D_{j, \mu \nu}  -  (A_j - O_j  ) D_{i, \mu \nu} 
+ + (A_i - O_i  ) *  (A_j - O_j  ) S_{\mu \nu} 
+\end{equation}
+
+\subsection{QM/MM electrostatic embedding potential matrix}
+
+The AO representation of the MM electrostatic embedding potential was defined in Eq.\ref{eq:qmmm-v}.  
+Using the Taylor expansion in Eq.~\ref{eq:taylor-phi}, its diagonal blocks can be approximated as 
+\begin{equation}
+\tilde{V}_{AA} = \phi(\vec{A}) S_{AA} +  \vec{E}(\vec{A}) \cdot \vec{M}_{AA}^{(A)} + \frac{1}{2} \vec{\vec{G}} (\vec{A}) \odot \vec{\vec{Q}}_{AA}^{(A)} 
+\label{eq:vaa}
+\end{equation}
+For the computation of the off-diagonal blocks, local Taylor expansion is performed at both end atoms, and the average is used
+\begin{eqnarray}
+\tilde{V}_{AB} & = & \frac{1}{2}\phi(\vec{A}) S_{AB} +  \frac{1}{2} \vec{E} (\vec{A})  \cdot \vec{M}_{AB}^{(A)} + \frac{1}{4} \vec{\vec{G}} (\vec{A}) \odot \vec{\vec{Q}}_{AB}^{(A)}   \nonumber  \\
+   & + & \frac{1}{2}\phi(\vec{B}) S_{AB} +  \frac{1}{2} \vec{E} (\vec{B})  \cdot \vec{M}_{AB}^{(B)} + \frac{1}{4} \vec{\vec{G}} (\vec{B}) \odot \vec{\vec{Q}}_{AB}^{(B)}   \label{eq:vab}
+\end{eqnarray}
+(For the off-diagonal blocks, a single local Taylor expansion at the midpoint between two atoms was also tried, 
+but it led to much less accurate results.)    
+
+When the QM electron density interacts with the approximate embedding potential defined in Eqs.~\ref{eq:vaa} and \ref{eq:vab}, 
+the electron portion of the electrostatic embedding energy  as defined in Eq.~\ref{eq:ev1} can be equivalently written as 
+\begin{equation}
+E_{\tilde{V}} = \sum_A \left[ \phi (\vec{A}) C^{(A)} +   \vec{E}(\vec{A})  \cdot \vec{\mu} ^{(A)} + \frac{1}{2}  \vec{\vec{G}} (\vec{A}) \odot \vec{\vec{\Theta}}^{(A)}  \right]
+\end{equation}
+Here, $C^{(A)}$, $\vec{\mu} ^{(A)}$ and $ \vec{\vec{\Theta}}^{(A)} $ are atomic charges, dipoles, and quadrupoles
+\begin{eqnarray}
+C^{(A)} & = &  \int \rho_A(\vec{r}) d\vec{r}   \label{eq:atomic-charges} \\
+\vec{\mu} ^{(A)} & = & \int (\vec{r} - \vec{A}) \rho_A(\vec{r}) d\vec{r} \label{eq:atomic-dipoles}  \\
+\vec{\vec{\Theta}}^{(A)} & =  & \int  \left[ (\vec{r} - \vec{A})  \otimes  (\vec{r} - \vec{A})  \right]  \rho_A(\vec{r}) d\vec{r}     \label{eq:atomic-quadrupoles}
+\end{eqnarray}
+computed using the Mulliken decomposition of the electron density:
+\begin{equation}
+\rho_A(\vec{r}) = \sum_{\mu, \nu \in A} P^{\mu \nu}  \chi_{\mu} (\vec{r})   \chi_{\nu} (\vec{r})  + \frac{1}{2} \sum_{\mu \in A, \nu \notin A }   P^{\mu \nu}  \chi_{\mu} (\vec{r})   \chi_{\nu} (\vec{r}) 
+\end{equation}
+In other words, with the adoption of Eqs.~\ref{eq:vaa} and \ref{eq:vab}, \emph{the QM electron density will be represented as a QM* multipolar representation for its interaction with the MM electrostatic environment}.   
+
+
+%\section{Computational Details}
+
+\section{QM*/MM Results}
+
+\subsection{Computational details}
+Calculations are performed on the water dimer molecule 
+\begin{verbatim}
+     O  -1.486845   0.125051   0.000000
+     H  -1.861405  -0.757772   0.000000
+     H  -0.540931  -0.032798  -0.000000
+     O   1.380795  -0.119842   0.000000
+     H   1.792649   0.307636  -0.753200
+     H   1.792649   0.307636   0.753200
+\end{verbatim}
+with the first water (hydrogen bond donor) treated with B3LYP/6-31+G* or B3LYP/6-311++G**, 
+and the second water described with the TIP3P model in QM/MM calculations.   
+
+Four models will be used:
+\begin{itemize}
+\item \textbf{Coulomb embedding.}   The second water molecule is treated as an isolated molecule using the same level theory.   
+Its density is used to provide an electrostatic potential for the first water molecule.   
+The Hartree-Fock exchange effect between the two water molecules is NOT accounted for.  
+\item \textbf{Standard QM/MM.}   The embedding potential matrix elements are computed according to Eq.~\ref{eq:qmmm-v}.  It is referred to ``MM w/o  local expansion" or ``no LE" later.   
+\item \textbf{LE-1}.    The approximate matrix elements are computed according to Eqs.~\ref{eq:vaa} and~\ref{eq:vab}, but with the second-order term involving $\vec{\vec{G}}$ removed. 
+\item \textbf{LE-2}.    The approximate matrix elements are computed up to the second order according to Eqs.~\ref{eq:vaa} and~\ref{eq:vab}.  
+\end{itemize}
+
+\subsection{Embedding potential matrix with B3LYP/6-31G* and B3LYP/6-311++G**}
+
+\begin{figure}[htp]
+\caption{Embedding potential matrix from B3LYP/6-31G* calculations.   The matrix is 23-by-23 in size.    LE-2 is shown to well reproduces the standard QM/MM matrix elements.  }
+\includegraphics{le.pdf}
+\end{figure}
+
+\begin{figure}[htp]
+\caption{Embedding potential matrix from B3LYP/6-311++G** calculations.   The matrix is 36-by-36 in size.    LE-2, in general, well reproduces the standard QM/MM matrix elements.   
+But for the (33,33)-th element, LE-2 value (0.051) deviates significantly from the standard QM/MM value (0.026).   The Coulomb embedding value is -0.016.   The corresponding basis function is 
+a very diffuse $s$ function (exponent = 0.036) on the hydrogen atom (hydrogen bond donor). }
+\includegraphics{le-larger.pdf}
+\end{figure}
+
+\begin{figure}
+\caption{QM/MM permanent electrostatics and polarization energies (in kcal/mol) for the \textcolor{red}{water} molecule (described with B3LYP/6-31G*) in 1000 different solvent configurations (each with 1687 TIP3P water molecules).   
+QM*/MM values with the LE-1 and LE-2 approximations are shown against standard QM/MM results. }
+\begin{center}
+\includegraphics[height=7.0in]{100-b3lyp-631gd.pdf}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{QM/MM permanent electrostatics and polarization energies (in kcal/mol) for the \textcolor{red}{water} molecule (described with B3LYP/\textcolor{red}{6-311++G**}) in 1000 different solvent configurations (each with 1687 TIP3P water molecules).   
+QM*/MM values with the LE-1 and LE-2 approximations are shown against standard QM/MM results. }
+\begin{center}
+\includegraphics[height=7.0in]{100-b3lyp-6311ppgdp.pdf}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{QM/MM permanent electrostatics and polarization energies (in kcal/mol) for the \textcolor{red}{methanol} molecule (described with B3LYP/6-31G*) in 1000 different solvent configurations (each with 1687 TIP3P water molecules).   
+QM*/MM values with the LE-1 and LE-2 approximations are shown against standard QM/MM results. }
+\begin{center}
+\includegraphics[height=7.0in]{99-b3lyp-631gd.pdf}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{QM/MM permanent electrostatics and polarization energies (in kcal/mol) for the \textcolor{red}{acetamide} molecule (described with B3LYP/6-31G*) in 1000 different solvent configurations (each with 1687 TIP3P water molecules).   
+QM*/MM values with the LE-1 and LE-2 approximations are shown against standard QM/MM results. }
+\begin{center}
+\includegraphics[height=7.0in]{90-b3lyp-631gd.pdf}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{QM/MM permanent electrostatics and polarization energies (in kcal/mol) for the \textcolor{red}{methanethiol} molecule (described with B3LYP/6-31G*) in 1000 different solvent configurations (each with 1687 TIP3P water molecules).   
+QM*/MM values with the LE-1 and LE-2 approximations are shown against standard QM/MM results. }
+\begin{center}
+\includegraphics[height=7.0in]{92-b3lyp-631gd.pdf}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{QM/MM permanent electrostatics and polarization energies (in kcal/mol) for the \textcolor{red}{aniline} molecule (described with B3LYP/6-31G*) in \textcolor{blue}{516} different solvent configurations (each with 1687 TIP3P water molecules).   
+QM*/MM values with the LE-1 and LE-2 approximations are shown against standard QM/MM results. }
+\begin{center}
+\includegraphics[height=7.0in]{91-b3lyp-631gd.pdf}
+\end{center}
+\end{figure}
+
+
+\clearpage
+\section{Effect of Orthonormalization on the Density}
+
+For a two-fragment system (AB), let us use $C_A^{(0)}$ and  $C_B^{(0)}$ to represent occupied orbitals for each isolated fragment.   
+The overlap matrix between these two sets of fragments are:
+\begin{equation}
+S = \begin{pmatrix}
+I & S_{AB} \\ 
+S_{BA} & I 
+\end{pmatrix}
+\end{equation}
+where 
+\begin{equation}
+S_{AB} = C_A^{(0),T} S_{ao} C_B^{(0)}
+\end{equation}
+which is non-zero for two fragments separated at a finite distance.  $S_{BA}$ is its transpose. 
+
+One can orthonormalize these orbitals ``symmetrically" via
+\begin{equation}
+\begin{pmatrix}
+C_{A}' & C_{B}'  
+\end{pmatrix}
+= \begin{pmatrix}
+C_{A}^{(0))} & 0 \\ 
+0 & C_{B}^{(0))}
+\end{pmatrix}
+\begin{pmatrix}
+I & S_{AB} \\ 
+S_{BA} & I  
+\end{pmatrix}
+^{-\frac{1}{2}}
+\end{equation}
+where fragment MOs on both fragments are changed.   
+
+ Alternatively, one can take a ``non-symmetrical" scheme, where the fragment MOs on B are fixed.    Only MOs on fragment A are changed,
+\begin{equation}
+\begin{pmatrix}
+C_{A}'' & C_{B}^{(0)}  
+\end{pmatrix}
+= \begin{pmatrix}
+C_{A}^{(0)} & 0 \\ 
+0 & C_{B}^{(0)}
+\end{pmatrix}
+\begin{pmatrix}
+(I - S_{AB}S_{BA})^{-\frac{1}{2}} & 0\\ 
+- S_{BA} (I - S_{AB}S_{BA})^{-\frac{1}{2}}  & I 
+\end{pmatrix}
+\end{equation}
+Namely,
+\begin{equation}
+C_{A}'' = \left[ C_{A}^{(0)} - C_{B}^{(0)} S_{BA} \right] (I - S_{AB}S_{BA})^{-\frac{1}{2}} 
+\label{eq:fragA-new-MO}
+\end{equation}
+which clearly satisfy the orthonormal conditions
+\begin{eqnarray}
+\left(C_{A}''\right)^{T} S_{ao} C_{A}'' = I  \\
+C_{B}^{(0)} S_{ao} C_{A}'' = 0
+\end{eqnarray}
+\emph{This ``non-symmetrical" scheme would resemble QM/MM calculations
+where fragment A is treated quantum mechanically, and fragment B is described with a non-polarizable force field.  }
+
+Eq.~\ref{eq:fragA-new-MO} poses a technical challenge to practical QM/MM calculations, 
+because it requires basis functions on fragment B to be included in the QM calculation on fragment A.  
+It will be worthwhile to find which basis functions on fragment B matter the most.  
+
+Eq.~\ref{eq:fragA-new-MO} seems to indicate that a small fraction of electron is transferred 
+from (occupied orbitals of) fragment A to fragment B.   
+This is actually not true --- there is no net charge transfer between the two fragments.   
+ Without opening up the virtual space to add electrons, the total number of electrons in each fragment cannot change. 
+To add to our confusion, though, the Mulliken charges within each fragment do seem to change.   
+
+\begin{figure}[htp]
+\caption{Density changes to water dimer from orthonormalizing fragment MOs. }
+\label{fig:ortho-normal}
+\includegraphics[width=0.4\textwidth]{density-difference/ortho-normal.jpg}
+\includegraphics{density-difference/cycle0-frag12-xy-cube.pdf}
+\end{figure}
+
+B3LYP/6-31G* calculations were performed on water dimer, 
+and the density change from orthonormalizing the fragment MOs are shown in Fig.~\ref{fig:ortho-normal}. 
+Clearly, a small amount of electron change is depleted from the hydrogen bond area 
+(between the H and O atoms), and transferred to the two oxygen atoms.  
+By diagonalizing the difference in the fragment $A$ density matrix 
+(due to MO changes in Eq.~\ref{eq:fragA-new-MO}), 
+the amount of charge is estimated to be around 0.1 e. 
+
+\subsection{Further Thoughts}
+
+The MO representation of the density matrix after the orthogonalization, to 2nd order, can be expressed 
+\begin{equation}
+P = \begin{pmatrix} I + S_{AB}S_{BA} & -S_{AB} \\ 
+- S_{BA} & I + S_{BA} S_{AB} \end{pmatrix}
+\end{equation} 
+which seems to work well for water dimer at the equilbrium bond length.
+To compute the Fock matrix using this density matrix, we need 
+\begin{eqnarray}
+P_{AA} ~~~ \longrightarrow ~~~ \sum_{i,j \in A} (\mu \nu || ij )  \left[ \delta_{ij}  + \sum_{k \in B} S_{ik} S_{jk} \right] \\
+P_{AB} ~~~ \longrightarrow ~~~ \sum_{i \in A, k \in B} ( \mu \nu || i k ) S_{ik}   \\
+P_{BB} ~~~ \longrightarrow ~~~ \sum_{k,l \in B} ( \mu \nu || k l ) \left[ \delta_{kl} + \sum_{i \in A} S_{ik} S_{il} \right]  
+\end{eqnarray}
+
+%\section{Conclusions}
+
+
+%\section*{Acknowledgments} 
+
+%YS acknowledges financial support by the University of Oklahoma startup fund.  J
+
+\bibliography{le}
+%\bibliographystyle{acs}
+
+
+
+\end{document}

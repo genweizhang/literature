@@ -1,0 +1,60 @@
+\documentclass{article}
+\usepackage[letterpaper]{geometry}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage[skip=10pt]{caption}
+\usepackage{fullpage}
+\usepackage{color}
+\usepackage{colortbl}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage[flushleft]{threeparttable}
+\usepackage[style=chem-acs]{biblatex}
+\bibliography{qmmm-pbc-table.bib}
+
+\renewcommand{\arraystretch}{2.0}
+\definecolor{Gray}{gray}{0.9}
+
+\begin{document}
+\pagenumbering{gobble}
+
+\begin{table}[tbp]
+%\setlength{\tabcolsep}{4.5pt}
+\begin{threeparttable}
+\caption{Different Models to Calculate Electrostatic Potential Energy of QM/MM under Periodic Boundary Conditions}
+\begin{tabular}{cccccccccccccc}
+\hline
+\makecell{Embedding$_\leq$\\Embedding$_>$}                                & \makecell{EEd\\EEd} & \makecell{EEd\\EEd$'$} & \makecell{EEd\\EEd$''$}             & \makecell{EEd\\EEq}                                                                                                      & \makecell{EEd\\EEq$'$} & \makecell{EEd\\ME}                  & \makecell{EEq\\EEq}                               & \makecell{EEq\\EEq$'$} & \makecell{EEq\\ME} & \makecell{ME\\ME} & \makecell{EEd\\~}    & \makecell{EEq\\~} & \makecell{ME\\~} \\ \hline
+$\left< \rho_{QM} \middle| \hat{j}_{\leq} \middle| \rho_{QM} \right>$     & $\bullet$           & $\bullet$              & $\bullet$                           & $\bullet$                                                                                                                & $\bullet$              & $\bullet$                           & $\bullet$                                         & $\bullet$              & $\bullet$          & $\bullet$         & $\bullet$            & $\bullet$         & $\bullet$        \\
+\rowcolor{Gray}
+$\left< \rho_{QM} \middle| \hat{j}_{\leq} \middle| q_{MM} \right>$        & $\bullet$           & $\bullet$              & $\bullet$                           & $\circ$                                                                                                                  & $\circ$                & $\circ$                             &                                                   &                        &                    &                   & $\bullet$            &                   &                  \\
+\rowcolor{Gray}
+$\left< Q_{QM} \middle| \hat{j}_{\leq} \middle| q_{MM} \right>$           &                     &                        &                                     & $\circ$                                                                                                                  & $\circ$                &                                     & $\bullet$                                         & $\bullet$              & $\circ$            &                   &                      & $\bullet$         &                  \\
+\rowcolor{Gray}
+$\left< Q_{QM}^{ref} \middle| \hat{j}_{\leq} \middle| q_{MM} \right>$     &                     &                        &                                     &                                                                                                                          &                        & $\circ$                             &                                                   &                        & $\circ$            & $\bullet$         &                      &                   & $\bullet$        \\
+$\left< \rho_{QM} \middle| \hat{j}_{>} \middle| \rho_{QM} \right>$        & $\bullet$           &                        &                                     &                                                                                                                          &                        &                                     &                                                   &                        &                    &                   &                      &                   &                  \\
+$\left< \rho_{QM} \middle| \hat{j}_{>} \middle| Q_{QM} \right>$           &                     & $\bullet$              &                                     &                                                                                                                          &                        &                                     &                                                   &                        &                    &                   &                      &                   &                  \\
+$\left< \rho_{QM} \middle| \hat{j}_{>} \middle| Q_{QM}^{ref} \right>$     &                     &                        & $\bullet$                           &                                                                                                                          &                        &                                     &                                                   &                        &                    &                   &                      &                   &                  \\
+$\left< Q_{QM} \middle| \hat{j}_ {>} \middle| Q_{QM} \right>$             &                     &                        &                                     & $\bullet$                                                                                                                &                        &                                     & $\bullet$                                         &                        &                    &                   &                      &                   &                  \\
+$\left< Q_{QM} \middle| \hat{j}_ {>} \middle| Q_{QM}^{ref} \right>$       &                     &                        &                                     &                                                                                                                          & $\bullet$              &                                     &                                                   & $\bullet$              &                    &                   &                      &                   &                  \\
+$\left< Q_{QM}^{ref} \middle| \hat{j}_ {>} \middle| Q_{QM}^{ref} \right>$ &                     &                        &                                     &                                                                                                                          &                        & $\bullet$                           &                                                   &                        & $\bullet$          & $\bullet$         &                      &                   &                  \\
+\rowcolor{Gray}
+$\left< \rho_{QM} \middle| \hat{j}_{>} \middle| q_{MM} \right>$           & $\bullet$           & $\bullet$              & $\bullet$                           &                                                                                                                          &                        &                                     &                                                   &                        &                    &                   &                      &                   &                  \\
+\rowcolor{Gray}
+$\left< Q_{QM} \middle| \hat{j}_{>} \middle| q_{MM} \right>$              &                     &                        &                                     & $\bullet$                                                                                                                & $\bullet$              &                                     & $\bullet$                                         & $\bullet$              &                    &                   &                      &                   &                  \\
+\rowcolor{Gray}
+$\left< Q_{QM}^{ref} \middle| \hat{j}_{>} \middle| q_{MM} \right>$        &                     &                        &                                     &                                                                                                                          &                        & $\bullet$                           &                                                   &                        & $\bullet$          & $\bullet$         &                      &                   &                  \\
+Comments                                                                  &                     &                        & \cite{giese_ambient-potential_2016} & \cite{nam_efficient_2005, walker_implementation_2008, holden_periodic_2013, ojeda-may_isotropic_2014, zhou_chapter_2016} &                        & \cite{giese_ambient-potential_2016} & \cite{seabra_implementation_2007, kubar_new_2015} &                        &                    &                   & \cite{fang_new_2015} &                   &                  \\ \hline
+\addlinespace[1ex]
+\end{tabular}
+\begin{tablenotes}
+\footnotesize
+\item[*] EEd = Electrostatic Embedding with Electron Density, EEq = Electrostatic Embedding with Atomic Charges, ME = Mechanical Embedding
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\printbibliography
+
+\end{document}
